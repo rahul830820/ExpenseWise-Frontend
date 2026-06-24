@@ -7,6 +7,11 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
 } from "recharts"
 import { useEffect, useState } from "react"
 interface CategoryWiseReport {
@@ -158,49 +163,44 @@ if (error) {
     </div>
 
     {/* Top Categories */}
-    <div className="bg-white p-6 rounded-lg shadow mb-6">
-      <h2 className="text-xl font-semibold mb-4">
-        Top Categories
-      </h2>
+<div className="bg-white p-6 rounded-lg shadow mb-6">
+  <h2 className="text-xl font-semibold mb-4">
+    Top Categories
+  </h2>
 
-      <table className="w-full">
-        <thead>
-          <tr className="border-b">
-            <th className="p-2 text-left">
-              Rank
-            </th>
+  <div className="h-96">
+    <ResponsiveContainer
+      width="100%"
+      height="100%"
+    >
+      <BarChart
+        data={topCategories}
+        margin={{
+          top: 20,
+          right: 30,
+          left: 20,
+          bottom: 5,
+        }}
+      >
+        <CartesianGrid
+          strokeDasharray="3 3"
+        />
 
-            <th className="p-2 text-left">
-              Category
-            </th>
+        <XAxis dataKey="category" />
 
-            <th className="p-2 text-left">
-              Total
-            </th>
-          </tr>
-        </thead>
+        <YAxis />
 
-        <tbody>
-          {topCategories.map(
-            (item, index) => (
-              <tr key={item.category}>
-                <td className="p-2">
-                  {index + 1}
-                </td>
+        <Tooltip />
 
-                <td className="p-2">
-                  {item.category}
-                </td>
-
-                <td className="p-2">
-                  ₹{item.total.toLocaleString()}
-                </td>
-              </tr>
-            )
-          )}
-        </tbody>
-      </table>
-    </div>
+        <Bar
+          dataKey="total"
+          fill="#3B82F6"
+          radius={[6, 6, 0, 0]}
+        />
+      </BarChart>
+    </ResponsiveContainer>
+  </div>
+</div>
 
     {/* Category Wise */}
     <div className="bg-white p-6 rounded-lg shadow mb-6">
