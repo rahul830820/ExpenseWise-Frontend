@@ -1,70 +1,58 @@
 "use client"
-
+import SummaryCard from "@/components/summary-card"
 import { useEffect, useState } from "react"
 import Sidebar from "@/components/sidebar"
+import RecentExpenses from "@/components/recent-expenses"
+import {
+  getDashboardSummary,
+  getRecentExpenses,
+} from "@/services/dashboard"
+import {
+  DashboardSummary,
+  RecentExpense,
+} from "@/types/dashboard"
 
 export default function DashboardPage() {
+  const [dashboard, setDashboard] =
+  useState<DashboardSummary>({
+    total_income: 0,
+    total_expenses: 0,
+    savings: 0,
+    savings_rate: 0,
+    expense_count: 0,
+    category_count: 0,
+  })
 
-  const [totalIncome, setTotalIncome] =
-    useState(0)
-
-  const [totalExpense, setTotalExpense] =
-    useState(0)
+  const [recentExpenses, setRecentExpenses] =
+  useState<RecentExpense[]>([])
 
   useEffect(() => {
-    fetchDashboardData()
-  }, [])
+  fetchDashboardData()
+  fetchRecentExpenses()
+}, [])
 
   const fetchDashboardData = async () => {
   try {
-    const token =
-      localStorage.getItem("access_token")
+    const data =
+      await getDashboardSummary()
 
-    const incomeResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/incomes`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    )
-
-    const expenseResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/expenses`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    )
-
-    const incomeData =
-      await incomeResponse.json()
-
-    const expenseData =
-      await expenseResponse.json()
-
-    const incomeTotal =
-      incomeData.items.reduce(
-        (sum: number, income: any) =>
-          sum + income.amount,
-        0
-      )
-
-    const expenseTotal =
-      expenseData.items.reduce(
-        (sum: number, expense: any) =>
-          sum + expense.amount,
-        0
-      )
-
-    setTotalIncome(incomeTotal)
-    setTotalExpense(expenseTotal)
-
+    setDashboard(data)
   } catch (error) {
     console.error(error)
   }
 }
+
+  const fetchRecentExpenses = async () => {
+  try {
+    const data =
+      await getRecentExpenses()
+
+    setRecentExpenses(data)
+  } catch (error) {
+    console.error(error)
+  }
+}
+
   return (
     <div className="flex min-h-screen bg-slate-100">
       <Sidebar />
@@ -74,38 +62,48 @@ export default function DashboardPage() {
           Dashboard
         </h1>
 
-        <div className="grid grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-sm text-gray-500">
-              Total Balance
-            </h2>
+        {/* First Row */}
+        <div className="grid grid-cols-3 gap-6 mb-6">
 
-            <p className="text-2xl font-bold">
-              ₹{(totalIncome - totalExpense).toLocaleString()}
-            </p>
-          </div>
+          <SummaryCard
+            title="Total Balance"
+            value={`₹${dashboard.savings.toLocaleString()}`}
+          />
 
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-sm text-gray-500">
-              Total Income
-            </h2>
+          <SummaryCard
+            title="Total Income"
+            value={`₹${dashboard.total_income.toLocaleString()}`}
+            valueColor="text-green-600"
+          />
 
-            <p className="text-2xl font-bold text-green-600">
-              ₹{totalIncome.toLocaleString()}
-            </p>
-          </div>
+          <SummaryCard
+            title="Total Expense"
+            value={`₹${dashboard.total_expenses.toLocaleString()}`}
+            valueColor="text-red-600"
+          />
 
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-sm text-gray-500">
-              Total Expense
-            </h2>
+          <SummaryCard
+            title="Savings Rate"
+            value={`${dashboard.savings_rate}%`}
+            valueColor="text-blue-600"
+          />
 
-            <p className="text-2xl font-bold text-red-600">
-              ₹{totalExpense.toLocaleString()}
-            </p>
-          </div>
+          <SummaryCard
+            title="Total Expenses"
+            value={dashboard.expense_count.toString()}
+          />
+
+          <SummaryCard
+            title="Categories"
+            value={dashboard.category_count.toString()}
+          />
+          <div className="mt-8">
+          <RecentExpenses
+            expenses={recentExpenses}
+          />
         </div>
-      </main>
-    </div>
+                </div>
+     </main>
+  </div>
   )
 }
