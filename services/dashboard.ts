@@ -41,3 +41,25 @@ export async function getRecentExpenses() {
 
   return await response.json()
 }
+
+export async function getDashboardCharts() {
+  const token =
+    localStorage.getItem("access_token")
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/dashboard/charts`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  )
+
+  if (!response.ok) {
+    throw new Error(
+      "Failed to fetch dashboard charts"
+    )
+  }
+
+  return await response.json()
+}
