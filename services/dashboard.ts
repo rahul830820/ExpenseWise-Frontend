@@ -1,9 +1,12 @@
-export async function getDashboardSummary() {
+import { DashboardPeriod } from "@/types/dashboard"
+export async function getDashboardSummary(
+  period: DashboardPeriod
+) {
   const token =
     localStorage.getItem("access_token")
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/dashboard/summary`,
+    `${process.env.NEXT_PUBLIC_API_URL}/dashboard/summary?period=${period}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -42,12 +45,14 @@ export async function getRecentExpenses() {
   return await response.json()
 }
 
-export async function getDashboardCharts() {
+export async function getDashboardCharts(
+  period: DashboardPeriod
+) {
   const token =
     localStorage.getItem("access_token")
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/dashboard/charts`,
+    `${process.env.NEXT_PUBLIC_API_URL}/dashboard/charts?period=${period}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

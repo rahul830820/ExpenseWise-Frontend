@@ -10,11 +10,14 @@ import {
 } from "@/services/dashboard"
 import {
   DashboardSummary,
-  RecentExpense,
   DashboardCharts,
+  DashboardPeriod,
+  RecentExpense,
 } from "@/types/dashboard"
 import ExpenseTrendChart from "@/components/dashboard/expense-trend-chart"
 import CategoryDistributionChart from "@/components/dashboard/category-distribution-chart"
+import DatedFilter from "@/components/common/date-filter"
+import DateFilter from "@/components/common/date-filter"
 
 export default function DashboardPage() {
   const [dashboard, setDashboard] =
@@ -35,17 +38,22 @@ export default function DashboardPage() {
   expense_trend: [],
   category_distribution: [],
 })
+  const [period, setPeriod] =
+  useState<DashboardPeriod>("month")
 
   useEffect(() => {
   fetchDashboardData()
-  fetchRecentExpenses()
   fetchDashboardCharts()
-}, [])
+  }, [period])
+
+  useEffect(() => {
+    fetchRecentExpenses()
+  }, [])
 
   const fetchDashboardData = async () => {
   try {
     const data =
-      await getDashboardSummary()
+      await getDashboardSummary(period)
 
     setDashboard(data)
   } catch (error) {
@@ -67,7 +75,7 @@ export default function DashboardPage() {
   const fetchDashboardCharts = async () => {
   try {
     const data =
-      await getDashboardCharts()
+      await getDashboardCharts(period)
 
     setCharts(data)
 
@@ -81,9 +89,18 @@ export default function DashboardPage() {
     <Sidebar />
 
     <main className="flex-1 p-8">
-      <h1 className="text-3xl font-bold mb-6">
-        Dashboard
-      </h1>
+      <div className="flex justify-between items-center mb-6">
+
+        <h1 className="text-3xl font-bold">
+          Dashboard
+        </h1>
+
+        <DateFilter
+          value={period}
+          onChange={setPeriod}
+        />
+
+      </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-3 gap-6 mb-6">

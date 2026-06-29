@@ -28,3 +28,11 @@ export interface DashboardCharts {
   expense_trend: ExpenseTrend[]
   category_distribution: CategoryDistribution[]
 }
+
+export type DashboardPeriod =
+  | "month"
+  | "last_month"
+  | "last_3_months"
+  | "last_6_months"
+  | "year"
+  | "all"
