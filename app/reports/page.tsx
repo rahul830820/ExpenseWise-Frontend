@@ -14,6 +14,10 @@ import {
   CartesianGrid,
 } from "recharts"
 import { useEffect, useState } from "react"
+import { DashboardPeriod } from "@/types/dashboard"
+import { getCategoryWiseReport, getMonthlyReport, getTopCategories } from "@/services/report"
+import DateFilter from "@/components/common/date-filter"
+
 interface CategoryWiseReport {
   category: string
   total: number
@@ -43,51 +47,30 @@ export default function ReportsPage() {
 
   const [error, setError] = useState("")
 
+  const [period, setPeriod] =
+  useState<DashboardPeriod>("month")
+
   useEffect(() => {
   fetchReports()
-}, [])
+}, [period])
 
   const fetchReports = async () => {
-  try {
-    const token =
-      localStorage.getItem("access_token")
-
-    const headers = {
-      Authorization: `Bearer ${token}`,
-    }
 
     const [
-      categoryResponse,
-      monthlyResponse,
-      topResponse,
+      categoryData,
+      monthlyData,
+      topData,
     ] = await Promise.all([
-      fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/reports/category-wise`,
-        { headers }
-      ),
-      fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/reports/monthly`,
-        { headers }
-      ),
-      fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/reports/top-categories`,
-        { headers }
-      ),
+      getCategoryWiseReport(period),
+      getMonthlyReport(period),
+      getTopCategories(period),
     ])
-
-    const categoryData =
-      await categoryResponse.json()
-
-    const monthlyData =
-      await monthlyResponse.json()
-
-    const topData =
-      await topResponse.json()
 
     setCategoryWise(categoryData)
     setMonthlyReport(monthlyData)
     setTopCategories(topData)
 
+    try {
   } catch (err: any) {
     setError(err.message)
   } finally {
@@ -118,10 +101,16 @@ if (error) {
 ]
   return (
   <div className="p-8">
-    <h1 className="text-3xl font-bold mb-6">
-      Reports
-    </h1>
+    <div className="flex justify-between items-center mb-6">
+      <h1 className="text-3xl font-bold">
+        Reports
+      </h1>
 
+      <DateFilter
+        value={period}
+        onChange={setPeriod}
+      />
+    </div>
     {/* Expense Distribution */}
     <div className="bg-white p-6 rounded-lg shadow mb-6">
       <h2 className="text-xl font-semibold mb-4">
